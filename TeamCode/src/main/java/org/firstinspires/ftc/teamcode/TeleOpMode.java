@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
 
-@TeleOp(name = "TestSlides", group = "AbsolutePriority")// Name and Group
+@TeleOp(name = "TeleOpMode", group = "AbsolutePriority")// Name and Group
 public class TeleOpMode extends LinearOpMode {
     Gamepad currentGamepad1 = null;
     Gamepad previousGamepad1 = null;
