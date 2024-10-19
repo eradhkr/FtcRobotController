@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
 
-
 @TeleOp(name = "TestSlides", group = "AbsolutePriority")// Name and Group
 public class TeleOpMode extends LinearOpMode {
     Gamepad currentGamepad1 = null;
@@ -34,8 +33,13 @@ public class TeleOpMode extends LinearOpMode {
 
     int slidePosition = 0;
     double linkPosition = 0;
+
+    int MIN_LINK_POSITION = 0;
+    int MAX_LINK_POSITION = 180;
     double LINK_POSITION_INCREASE_AMOUNT = 0.1;
+
     int MAX_SLIDE_POSITION = 1750;
+    int SLIDE_POSITION_INCREASE_AMOUNT = 30;
 
     int Button_X = 0;
     int Button_Y = 0;
@@ -251,91 +255,90 @@ public class TeleOpMode extends LinearOpMode {
 
             if (gamepad1.dpad_right) {
                 linkPosition += LINK_POSITION_INCREASE_AMOUNT;
-            }
-            else if (gamepad1.dpad_left) {
+            } else if (gamepad1.dpad_left) {
                 linkPosition -= LINK_POSITION_INCREASE_AMOUNT;
             }
-            linkServo.setPosition(0);
-        }
-        if (linkPosition < 0) {
-            linkPosition = 0;
-        }
-        linkServo.setPosition(linkPosition);
 
-        telemetry.addData("Slide Position", rightSlide.getCurrentPosition());
-        telemetry.addData("Slide Position", leftSlide.getCurrentPosition());
-        telemetry.addData("SlidePos", slidePosition);
-        telemetry.update();
+            if (linkPosition < MIN_LINK_POSITION) {
+                linkPosition = MIN_LINK_POSITION;
+            }
+            if (linkPosition >= MAX_LINK_POSITION) {
+                linkPosition = MAX_LINK_POSITION;
+            }
+            linkServo.setPosition(linkPosition);
 
-        /**
-         * Button Y
-         */
-        if (isButtonPressedFirstTime(Button_Y))
-        {
-            // If button y is pressed for first time
-            // do nothing
-        }
+            telemetry.addData("Slide Position", rightSlide.getCurrentPosition());
+            telemetry.addData("Slide Position", leftSlide.getCurrentPosition());
+            telemetry.addData("SlidePos", slidePosition);
+            telemetry.update();
 
-        // If button y is no longer being pressed
-        if (isButtonReleased(Button_Y))
-        {
-            //stop the motors completely
-            stopMotor();
-        }
+            /**
+             * Button Y
+             */
+            if (isButtonPressedFirstTime(Button_Y)) {
+                // If button y is pressed for first time
+                // do nothing
+            }
 
-        // If button y is continuously pressed
-        if (isButtonContinuouslyPressed(Button_Y))
-        {
-            moveForward(fastPower);
-        }
+            // If button y is no longer being pressed
+            if (isButtonReleased(Button_Y)) {
+                //stop the motors completely
+                stopMotor();
+            }
 
-        /**
-         * Button X
-         */
+            // If button y is continuously pressed
+            if (isButtonContinuouslyPressed(Button_Y)) {
+                moveForward(fastPower);
+            }
 
-         if (isButtonPressedFirstTime(Button_X)) {
-            // If button is pressed for first time
-            // do nothing
-         }
-        // If button is no longer being pressed
-         if (isButtonReleased(Button_X)) {
-            // do nothing
-         }
+            /**
+             * Button X
+             */
 
-        // If button is continuously pressed
-        if (isButtonContinuouslyPressed(Button_X)) {
-            strafeLeft(fastPower);
-        }
-        /******* Button A **********/
-        if (isButtonPressedFirstTime(Button_A)) {
-            // If button y is pressed for first time
-            // do nothing
-        }
-        // If button y is no longer being pressed
-        if (isButtonReleased(Button_A)) {
-            //stop the motors completely
-            stopMotor();
-        }
+            if (isButtonPressedFirstTime(Button_X)) {
+                // If button is pressed for first time
+                // do nothing
+            }
+            // If button is no longer being pressed
+            if (isButtonReleased(Button_X)) {
+                // do nothing
+            }
 
-        // If button y is continuously pressed
-        if (isButtonContinuouslyPressed(Button_A)) {
-            moveBackward(fastPower);
-        }
+            // If button is continuously pressed
+            if (isButtonContinuouslyPressed(Button_X)) {
+                strafeLeft(fastPower);
+            }
+            /******* Button A **********/
+            if (isButtonPressedFirstTime(Button_A)) {
+                // If button y is pressed for first time
+                // do nothing
+            }
+            // If button y is no longer being pressed
+            if (isButtonReleased(Button_A)) {
+                //stop the motors completely
+                stopMotor();
+            }
 
-        /******* Button B **********/
-        if (isButtonPressedFirstTime(Button_B)) {
-            // If button y is pressed for first time
-            // do nothing
-        }
-        // If button y is no longer being pressed
-        if (isButtonReleased(Button_B)) {
-            //stop the motors completely
-            stopMotor();
-        }
+            // If button y is continuously pressed
+            if (isButtonContinuouslyPressed(Button_A)) {
+                moveBackward(fastPower);
+            }
 
-        // If button y is continuously pressed
-        if (isButtonContinuouslyPressed(Button_B)) {
-            strafeRight(fastPower);
+            /******* Button B **********/
+            if (isButtonPressedFirstTime(Button_B)) {
+                // If button y is pressed for first time
+                // do nothing
+            }
+            // If button y is no longer being pressed
+            if (isButtonReleased(Button_B)) {
+                //stop the motors completely
+                stopMotor();
+            }
+
+            // If button y is continuously pressed
+            if (isButtonContinuouslyPressed(Button_B)) {
+                strafeRight(fastPower);
+            }
         }
     }
 }
