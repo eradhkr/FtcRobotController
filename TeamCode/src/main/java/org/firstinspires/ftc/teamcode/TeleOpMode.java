@@ -167,6 +167,16 @@ public class TeleOpMode extends LinearOpMode {
 
     }
 
+    void moveSlides(int slidePosition)
+    {
+        rightSlide.setTargetPosition(slidePosition);
+        rightSlide.setPower(-1);
+        leftSlide.setTargetPosition(slidePosition);
+        leftSlide.setPower(1);
+        leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
     @Override
     public void runOpMode() throws InterruptedException
     {
@@ -245,12 +255,7 @@ public class TeleOpMode extends LinearOpMode {
             }
 
             if (slidePosition != 0) {
-                rightSlide.setTargetPosition(slidePosition);
-                rightSlide.setPower(-1);
-                leftSlide.setTargetPosition(slidePosition);
-                leftSlide.setPower(1);
-                leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                moveSlides(slidePosition);
             }
 
             if (gamepad1.dpad_right) {
