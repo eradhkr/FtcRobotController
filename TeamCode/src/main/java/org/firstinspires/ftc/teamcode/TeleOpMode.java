@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
 
-@TeleOp(name = "TestSlides", group = "AbsolutePriority")// Name and Group
+@TeleOp(name = "TeleOpMode", group = "AbsolutePriority")// Name and Group
 public class TeleOpMode extends LinearOpMode {
     Gamepad currentGamepad1 = null;
     Gamepad previousGamepad1 = null;
@@ -23,13 +23,13 @@ public class TeleOpMode extends LinearOpMode {
         BUTTON_STATUS_UNDETERMINED
     }
     */
-
     int BUTTON_PRESSED_FIRST_TIME = 2;
     int BUTTON_CONTINUOUSLY_PRESSED = 3;
     int BUTTON_RELEASED = 4;
     int BUTTON_STATUS_UNDETERMINED = 5;
     int FLIP_DIRECTION_UP = 6;
     int FLIP_DIRECTION_DOWN = 7;
+
     double FLIP_MOTOR_POWER = 1;
     double slowPower = 0.5;
     double slowReversePower = -0.5;
@@ -38,15 +38,16 @@ public class TeleOpMode extends LinearOpMode {
 
     int slidePosition = 0;
     double linkPosition = 0;
+    int flipMotorPosition = 0;
+    double flipMotorPower = 0;
+
 
     int MIN_LINK_POSITION = 0;
     int MAX_LINK_POSITION = 180;
 
-    int MIN_FLIP_POSITION = 40;
-    int MAX_FLIP_POSITION = 40;
+    int MIN_FLIP_POSITION = 0;
+    int MAX_FLIP_POSITION = 1000;
     int FLIP_POSITION_INCREASE_AMOUNT = 5;
-
-
 
     double LINK_POSITION_INCREASE_AMOUNT = 0.1;
 
@@ -193,14 +194,15 @@ public class TeleOpMode extends LinearOpMode {
     }
 
     void moveFlipMotor(int flipMotorPosition, double flipMotorPower) {
+        telemetry.addData("flip motor set target position", flipMotorPosition);
+        telemetry.addData("flip motor set power", flipMotorPower);
         flipDownMotor.setTargetPosition(flipMotorPosition);
         flipDownMotor.setPower(flipMotorPower);
         flipDownMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     void flipMotor(int flipDirection) {
-        int flipMotorPosition = 0;
-        double flipMotorPower = 0;
+
         if (flipDirection == FLIP_DIRECTION_UP) {
             if (flipDownMotor.getCurrentPosition() <= MAX_FLIP_POSITION) {
                 flipMotorPosition += FLIP_POSITION_INCREASE_AMOUNT;
@@ -217,9 +219,10 @@ public class TeleOpMode extends LinearOpMode {
             flipMotorPower = -FLIP_MOTOR_POWER;
         }
 
+        telemetry.addData("Flip Motor Position", flipMotorPosition);
+        telemetry.addData("Flip Motor Power", flipMotorPower);
+        telemetry.addData("Flip Motor direction", flipDirection);
         moveFlipMotor(flipMotorPosition,flipMotorPower);
-
-        flipDownMotor.setPower(-FLIP_MOTOR_POWER);
     }
 
 
@@ -237,19 +240,23 @@ public class TeleOpMode extends LinearOpMode {
         flipDownMotor = hardwareMap.dcMotor.get("flipDownMotor");
 
         // Set Modes For Certain Motors
+
         leftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flipDownMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        flipDownMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
 
         // Reverse Motor Directions
         frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         backLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         frontRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        flipDownMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         leftSlide.setDirection(DcMotorSimple.Direction.REVERSE);
         rightSlide.setDirection(DcMotorSimple.Direction.FORWARD);
+        flipDownMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         currentGamepad1 = new Gamepad();
         previousGamepad1 = new Gamepad();
@@ -278,13 +285,6 @@ public class TeleOpMode extends LinearOpMode {
             frontRightMotor.setPower(frontRightPower);
             backRightMotor.setPower(backRightPower);
 
-            telemetry.addData("Slide Position", rightSlide.getCurrentPosition());
-            telemetry.addData("Slide Position", leftSlide.getCurrentPosition());
-            telemetry.addData("Servo link Position", linkServo.getPosition());
-            telemetry.addData("SlidePos", slidePosition);
-            telemetry.addData("Era Test", slidePosition);
-            telemetry.update();
-
             //Copy  Button Values from previous iteration into Previous GamePad Button Values
             previousGamepad1.copy(currentGamepad1);
             //Store  Button Values from current iteration into currentGamePad
@@ -295,10 +295,10 @@ public class TeleOpMode extends LinearOpMode {
             gamepad1_Button_Y = getButtonStatus(currentGamepad1.y, previousGamepad1.y);
             gamepad1_Button_A = getButtonStatus(currentGamepad1.a, previousGamepad1.a);
             gamepad1_Button_B = getButtonStatus(currentGamepad1.b, previousGamepad1.b);
-            gamepad2_Button_X = getButtonStatus(currentGamepad2.x, previousGamepad2.x);
-            gamepad2_Button_Y = getButtonStatus(currentGamepad2.y, previousGamepad2.y);
-            gamepad2_Button_A = getButtonStatus(currentGamepad2.a, previousGamepad2.a);
-            gamepad2_Button_B = getButtonStatus(currentGamepad2.b, previousGamepad2.b);
+            //gamepad2_Button_X = getButtonStatus(currentGamepad2.x, previousGamepad2.x);
+            //gamepad2_Button_Y = getButtonStatus(currentGamepad2.y, previousGamepad2.y);
+            //gamepad2_Button_A = getButtonStatus(currentGamepad2.a, previousGamepad2.a);
+            //gamepad2_Button_B = getButtonStatus(currentGamepad2.b, previousGamepad2.b);
 
 
 
@@ -328,12 +328,14 @@ public class TeleOpMode extends LinearOpMode {
             if (linkPosition >= MAX_LINK_POSITION) {
                 linkPosition = MAX_LINK_POSITION;
             }
-            linkServo.setPosition(linkPosition);
+            //linkServo.setPosition(linkPosition);
 
-            telemetry.addData("Slide Position", rightSlide.getCurrentPosition());
-            telemetry.addData("Slide Position", leftSlide.getCurrentPosition());
-            telemetry.addData("SlidePos", slidePosition);
-            telemetry.update();
+            telemetry.addData("Right Slide Position", rightSlide.getCurrentPosition());
+            telemetry.addData("Left Slide Position", leftSlide.getCurrentPosition());
+            telemetry.addData("Servo link Position", linkServo.getPosition());
+            telemetry.addData("Slide Increment", slidePosition);
+            telemetry.addData("LinkServo Increment", linkPosition);
+
 
             /**
              * Here are the current button functions
@@ -358,6 +360,10 @@ public class TeleOpMode extends LinearOpMode {
              * Gamepad1 Joysticks- no action
              */
 
+            //if (gamepad1.y) {
+            //    linkServo.setPosition(1);
+            //}
+
             if (isButtonPressedFirstTime(gamepad1_Button_Y)) {
                 // If button y is pressed for first time
                 // do nothing
@@ -367,14 +373,21 @@ public class TeleOpMode extends LinearOpMode {
             // If button y is no longer being pressed
             if (isButtonReleased(gamepad1_Button_Y)) {
                 //stop the motors completely
-                stopMotor();
+                //stopMotor();
+            }
+
+            if (gamepad1.y) {
+                flipMotor(FLIP_DIRECTION_UP);
+            }
+            if(gamepad1.a) {
+                flipMotor(FLIP_DIRECTION_DOWN);
             }
 
             // If button y is continuously pressed
-            if (isButtonContinuouslyPressed(gamepad1_Button_Y)) {
-                flipMotor(FLIP_DIRECTION_UP);
+            //if (isButtonContinuouslyPressed(gamepad1_Button_Y)) {
+            //    flipMotor(FLIP_DIRECTION_UP);
                 //moveForward(fastPower);
-            }
+            //}
 
 
             if (isButtonPressedFirstTime(gamepad1_Button_X)) {
@@ -399,13 +412,13 @@ public class TeleOpMode extends LinearOpMode {
             // If button y is no longer being pressed
             if (isButtonReleased(gamepad1_Button_A)) {
                 //stop the motors completely
-                stopMotor();
+                //stopMotor();
             }
 
             // If button y is continuously pressed
-            if (isButtonContinuouslyPressed(gamepad1_Button_A)) {
-                flipMotor(FLIP_DIRECTION_DOWN);
-            }
+            //if (isButtonContinuouslyPressed(gamepad1_Button_A)) {
+            //    flipMotor(FLIP_DIRECTION_DOWN);
+            //}
 
             /******* Button B **********/
             if (isButtonPressedFirstTime(gamepad1_Button_B)) {
@@ -415,7 +428,7 @@ public class TeleOpMode extends LinearOpMode {
             // If button y is no longer being pressed
             if (isButtonReleased(gamepad1_Button_B)) {
                 //stop the motors completely
-                stopMotor();
+                //stopMotor();
             }
 
             // If button y is continuously pressed
@@ -423,6 +436,7 @@ public class TeleOpMode extends LinearOpMode {
                 strafeRight(fastPower);
             }
 
+            telemetry.update();
         }
     }
 }
